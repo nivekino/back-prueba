@@ -10,6 +10,7 @@ router.get("/api/movies", moviesController.getAllMovies);
 router.get("/api/movies/:id", moviesController.getMovieById);
 router.delete("/api/movies/:id", moviesController.deleteMovie);
 router.put("/api/movies/:id", moviesController.updateMovie);
+router.get("/api/search", moviesController.searchMoviesController);
 
 // Rutas para opciones
 router.get("/api/options", optionsController.getOptions);

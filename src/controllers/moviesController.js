@@ -62,10 +62,40 @@ const updateMovie = async (req, res) => {
   }
 };
 
+const searchMoviesController = async (req, res) => {
+  try {
+    const searchTerm = req.query.searchTerm;
+    if (!searchTerm) {
+      return res.status(400).json({ error: "Please provide a search term." });
+    }
+
+    const searchResults = await Movies.searchMovies(searchTerm);
+    res.status(200).json({ data: searchResults, message: "Search results" });
+  } catch (error) {
+    res.status(500).json({ error: "Error searching movies" });
+  }
+};
+
+const searchCategoryMovies = async (req, res) => {
+  try {
+    const category = req.query.category;
+    if (!category) {
+      return res.status(400).json({ error: "Please provide a category." });
+    }
+
+    const searchResults = await Movies.searchCategoryMovies(category);
+    res.status(200).json({ data: searchResults, message: "Search results" });
+  } catch (error) {
+    res.status(500).json({ error: "Error searching movies" });
+  }
+};
+
 module.exports = {
   createMovie,
   getAllMovies,
   getMovieById,
   deleteMovie,
   updateMovie,
+  searchMoviesController,
+  searchCategoryMovies,
 };

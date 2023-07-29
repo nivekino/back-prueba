@@ -13,20 +13,22 @@ const createMovie = async (movie) => {
     !movie.budget ||
     !movie.date ||
     !movie.duration ||
-    !movie.imageUrl
+    !movie.imageUrl ||
+    !movie.category
   ) {
     throw new Error(
-      "Missing required fields. Please provide name, budget, date, duration, and imageUrl."
+      "Missing required fields. Please provide name, budget, date, duration, imageUrl and category."
     );
   }
 
   if (
     typeof movie.name !== "string" ||
     typeof movie.imageUrl !== "string" ||
-    typeof movie.date !== "string"
+    typeof movie.date !== "string" ||
+    typeof movie.category !== "string"
   ) {
     throw new Error(
-      'Invalid data type. "name", "imageUrl" and "date" should be strings.'
+      'Invalid data type. "name", "imageUrl", "date" and category should be strings.'
     );
   }
 
@@ -45,12 +47,12 @@ const createMovie = async (movie) => {
   }
 
   try {
-    const { name, budget, date, duration, imageUrl } = movie;
+    const { name, budget, date, duration, imageUrl, category} = movie;
     const image = await uploadImageToGCS(imageUrl);
 
     const query =
-      "INSERT INTO movie (name, budget, date, duration, img) VALUES ($1, $2, $3, $4, $5) RETURNING *";
-    const values = [name, budget, date, duration, image];
+      "INSERT INTO movie (name, budget, date, duration, img, category) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *";
+    const values = [name, budget, date, duration, image, category];
 
     const { rows } = await pool.query(query, values);
     return rows[0];
@@ -174,6 +176,42 @@ const getMoviesByYear = async (year) => {
   }
 };
 
+const searchMovies = async (searchTerm) => {
+  try {
+    if (typeof searchTerm !== "string" || searchTerm.trim() === "") {
+      throw new Error(
+        "Invalid search term. Please provide a non-empty string."
+      );
+    }
+
+    const query = "SELECT * FROM movie WHERE lower(name) LIKE $1";
+    const values = [`%${searchTerm.toLowerCase()}%`];
+    const { rows } = await pool.query(query, values);
+
+    return rows;
+  } catch (error) {
+    console.error("Error searching movies:", error);
+    throw error;
+  }
+};
+
+const searchMoviesByCategory = async (searchTerm) => {
+  try {
+    if (typeof searchTerm !== "string" || searchTerm.trim() === "") {
+      throw new Error("Invalid search term. Please provide a non-empty string.");
+    }
+
+    const query = "SELECT * FROM movie WHERE lower(category) LIKE $1";
+    const values = [`%${searchTerm.toLowerCase()}%`];
+    const { rows } = await pool.query(query, values);
+
+    return rows;
+  } catch (error) {
+    console.error("Error searching movies by category:", error);
+    throw error;
+  }
+};
+
 async function uploadImageToGCS(imagePath) {
   try {
     const imageReadStream = fs.createReadStream(imagePath);
@@ -213,4 +251,6 @@ module.exports = {
   deleteMovie,
   updateMovie,
   getMoviesByYear,
+  searchMovies,
+  searchMoviesByCategory,
 };
