@@ -47,7 +47,7 @@ const createMovie = async (movie) => {
   }
 
   try {
-    const { name, budget, date, duration, imageUrl, category} = movie;
+    const { name, budget, date, duration, imageUrl, category } = movie;
     const image = await uploadImageToGCS(imageUrl);
 
     const query =
