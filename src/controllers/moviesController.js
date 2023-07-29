@@ -9,6 +9,63 @@ const createMovie = async (req, res) => {
   }
 };
 
+const getAllMovies = async (req, res) => {
+  try {
+    const year = req.query.year;
+
+    let movies = await Movies.getAllMovies();
+
+    if (year) {
+      movies = movies.filter((movie) => movie.date.startsWith(year));
+    }
+
+    res.status(200).json({ data: movies, message: "Todas las películas" });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener las películas" });
+  }
+};
+
+const getMovieById = async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    const movie = await Movies.getMovieById(movieId);
+
+    res.status(200).json({ data: movie, message: "Película encontrada" });
+  } catch (error) {
+    res.status(404).json({ error: "Película no encontrada" });
+  }
+};
+
+const deleteMovie = async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    const movie = await Movies.deleteMovie(movieId);
+
+    res.status(200).json({ data: movie, message: "Película eliminada" });
+  } catch (error) {
+    res.status(404).json({ error: "Película no encontrada" });
+  }
+};
+
+const updateMovie = async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    const movieUpdates = req.body;
+
+    const updatedMovie = await Movies.updateMovie(movieId, movieUpdates);
+
+    res
+      .status(200)
+      .json({ data: updatedMovie, message: "Película actualizada" });
+  } catch (error) {
+    res.status(404).json({ error: "Película no encontrada" });
+  }
+};
+
 module.exports = {
   createMovie,
+  getAllMovies,
+  getMovieById,
+  deleteMovie,
+  updateMovie,
 };
