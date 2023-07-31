@@ -9,7 +9,7 @@ const port = 3010;
 
 const corsOpts = {
   origin: "*",
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"],
 };
 
