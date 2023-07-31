@@ -32,18 +32,17 @@ router.put("/api/movies/:id", upload.single("image"), async (req, res) => {
       image = await uploadImageToGCS(imageFile);
     }
 
-    const query =
-      "UPDATE movie SET name = $1, budget = $2, date = $3, duration = $4, img = $5, category = $6, description = $7 WHERE id = $8 RETURNING *";
-    const values = [
-      name,
-      budget,
-      date,
-      duration,
-      image,
-      category,
-      description,
-      id,
-    ];
+    let query, values;
+
+    if (image) {
+      query =
+        "UPDATE movie SET name = $1, budget = $2, date = $3, duration = $4, img = $5, category = $6, description = $7 WHERE id = $8 RETURNING *";
+      values = [name, budget, date, duration, image, category, description, id];
+    } else {
+      query =
+        "UPDATE movie SET name = $1, budget = $2, date = $3, duration = $4, category = $5, description = $6 WHERE id = $7 RETURNING *";
+      values = [name, budget, date, duration, category, description, id];
+    }
 
     const { rows } = await pool.query(query, values);
     res.status(200).json(rows[0]);
